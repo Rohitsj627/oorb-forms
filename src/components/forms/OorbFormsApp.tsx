@@ -58,11 +58,24 @@ const OorbFormsApp: React.FC = () => {
     switch (currentView) {
       case 'dashboard':
         return (
-          <FormDashboard 
-            onCreateForm={handleCreateForm}
-            onEditForm={handleEditForm}
-            onViewResponses={handleViewResponses}
-          />
+          <div className="flex min-h-screen bg-gray-50">
+            {/* Sidebar */}
+            <Sidebar
+              onCreateForm={handleCreateForm}
+              onEditForm={handleEditForm}
+              currentView={currentView}
+              onNavigate={setCurrentView}
+            />
+            
+            {/* Main Content */}
+            <div className="flex-1">
+              <FormDashboard 
+                onCreateForm={handleCreateForm}
+                onEditForm={handleEditForm}
+                onViewResponses={handleViewResponses}
+              />
+            </div>
+          </div>
         );
       
       case 'builder':
@@ -83,31 +96,31 @@ const OorbFormsApp: React.FC = () => {
       
       default:
         return (
-          <FormDashboard 
-            onCreateForm={handleCreateForm}
-            onEditForm={handleEditForm}
-            onViewResponses={handleViewResponses}
-          />
+          <div className="flex min-h-screen bg-gray-50">
+            {/* Sidebar */}
+            <Sidebar
+              onCreateForm={handleCreateForm}
+              onEditForm={handleEditForm}
+              currentView={currentView}
+              onNavigate={setCurrentView}
+            />
+            
+            {/* Main Content */}
+            <div className="flex-1">
+              <FormDashboard 
+                onCreateForm={handleCreateForm}
+                onEditForm={handleEditForm}
+                onViewResponses={handleViewResponses}
+              />
+            </div>
+          </div>
         );
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar - only show on dashboard */}
-      {currentView === 'dashboard' && (
-        <Sidebar
-          onCreateForm={handleCreateForm}
-          onEditForm={handleEditForm}
-          currentView={currentView}
-          onNavigate={setCurrentView}
-        />
-      )}
-
-      {/* Main Content */}
-      <div className="flex-1">
-        {renderCurrentView()}
-      </div>
+    <>
+      {renderCurrentView()}
 
       {/* Form Creation Modal */}
       <FormCreationModal
@@ -140,7 +153,7 @@ const OorbFormsApp: React.FC = () => {
           },
         }}
       />
-    </div>
+    </>
   );
 };
 
