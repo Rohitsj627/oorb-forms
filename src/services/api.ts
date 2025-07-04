@@ -34,6 +34,31 @@ export const formAPI = {
   
   // Get analytics
   getAnalytics: (id: string) => api.get(`/forms/${id}/analytics`),
+
+  // Get recent forms
+  getRecentForms: (limit = 5) => api.get(`/forms?limit=${limit}&sort=updatedAt`),
+};
+
+// Folder API
+export const folderAPI = {
+  // Get all folders
+  getFolders: () => api.get('/folders'),
+  
+  // Get folder by ID with forms
+  getFolder: (id: string) => api.get(`/folders/${id}`),
+  
+  // Create folder
+  createFolder: (folderData: any) => api.post('/folders', folderData),
+  
+  // Update folder
+  updateFolder: (id: string, folderData: any) => api.put(`/folders/${id}`, folderData),
+  
+  // Delete folder
+  deleteFolder: (id: string) => api.delete(`/folders/${id}`),
+  
+  // Move forms to folder
+  moveForms: (folderId: string, formIds: string[]) => 
+    api.post(`/folders/${folderId}/move-forms`, { formIds }),
 };
 
 // Response API

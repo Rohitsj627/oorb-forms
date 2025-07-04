@@ -22,6 +22,11 @@ const formSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: String,
   fields: [fieldSchema],
+  folderId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Folder',
+    default: null // null means standalone form
+  },
   settings: {
     allowMultipleResponses: { type: Boolean, default: true },
     requireLogin: { type: Boolean, default: false },

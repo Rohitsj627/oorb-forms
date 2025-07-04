@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import formRoutes from './routes/forms.js';
 import responseRoutes from './routes/responses.js';
 import exportRoutes from './routes/exports.js';
+import folderRoutes from './routes/folders.js';
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/api/forms', formRoutes);
 app.use('/api/responses', responseRoutes);
 app.use('/api/exports', exportRoutes);
+app.use('/api/folders', folderRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
