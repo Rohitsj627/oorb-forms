@@ -61,6 +61,26 @@ export const folderAPI = {
     api.post(`/folders/${folderId}/move-forms`, { formIds }),
 };
 
+// Auth API (placeholder for future authentication features)
+export const authAPI = {
+  // Login
+  login: (credentials: { email: string; password: string }) => 
+    api.post('/auth/login', credentials),
+  
+  // Register
+  register: (userData: { email: string; password: string; name: string }) => 
+    api.post('/auth/register', userData),
+  
+  // Logout
+  logout: () => api.post('/auth/logout'),
+  
+  // Get current user
+  getCurrentUser: () => api.get('/auth/me'),
+  
+  // Refresh token
+  refreshToken: () => api.post('/auth/refresh'),
+};
+
 // Response API
 export const responseAPI = {
   // Submit response
