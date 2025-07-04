@@ -4,6 +4,7 @@ import FormDashboard from './FormDashboard';
 import FormBuilder from './FormBuilder';
 import ResponseViewer from './ResponseViewer';
 import FormCreationModal from './FormCreationModal';
+import Sidebar from './Sidebar';
 import { formAPI } from '../../services/api';
 import toast from 'react-hot-toast';
 
@@ -92,8 +93,21 @@ const OorbFormsApp: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {renderCurrentView()}
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Sidebar - only show on dashboard */}
+      {currentView === 'dashboard' && (
+        <Sidebar
+          onCreateForm={handleCreateForm}
+          onEditForm={handleEditForm}
+          currentView={currentView}
+          onNavigate={setCurrentView}
+        />
+      )}
+
+      {/* Main Content */}
+      <div className="flex-1">
+        {renderCurrentView()}
+      </div>
 
       {/* Form Creation Modal */}
       <FormCreationModal

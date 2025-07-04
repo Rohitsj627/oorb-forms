@@ -8,7 +8,9 @@ import {
   Plus,
   Folder,
   ChevronRight,
-  Settings
+  Settings,
+  Menu,
+  Star
 } from 'lucide-react';
 import { formAPI } from '../../services/api';
 import toast from 'react-hot-toast';
@@ -44,7 +46,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const loadRecentForms = async () => {
     try {
       const response = await formAPI.getRecentForms(5);
-      setRecentForms(response.data.slice(0, 5)); // Get only first 5 forms
+      setRecentForms(response.data.slice(0, 5));
     } catch (error) {
       console.error('Error loading recent forms:', error);
     } finally {
@@ -69,11 +71,13 @@ const Sidebar: React.FC<SidebarProps> = ({
     <div className="w-64 bg-white border-r border-gray-200 h-screen flex flex-col">
       {/* Logo */}
       <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <FileText className="w-5 h-5 text-white" />
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+            <FileText className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-xl font-bold text-gray-900">OORB Forms</h1>
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">Forms</h1>
+          </div>
         </div>
       </div>
 
@@ -83,48 +87,23 @@ const Sidebar: React.FC<SidebarProps> = ({
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
-            placeholder="Search forms..."
+            placeholder="Search"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-gray-50"
           />
         </div>
       </div>
 
-      {/* Navigation */}
-      <div className="p-4 border-b border-gray-200">
-        <nav className="space-y-1">
-          <button
-            onClick={() => onNavigate('dashboard')}
-            className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-              currentView === 'dashboard' 
-                ? 'bg-blue-100 text-blue-700' 
-                : 'text-gray-700 hover:bg-gray-100'
-            }`}
-          >
-            <Folder className="w-4 h-4" />
-            <span>Dashboard</span>
-          </button>
-          
-          <button
-            onClick={onCreateForm}
-            className="w-full flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Create Form</span>
-          </button>
-        </nav>
-      </div>
-
       {/* Recent Forms */}
       <div className="flex-1 p-4 overflow-y-auto">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-medium text-gray-900">Recent Forms</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-medium text-gray-900">Recent forms</h3>
           <Clock className="w-4 h-4 text-gray-400" />
         </div>
         
         {loading ? (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="animate-pulse">
                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
@@ -138,7 +117,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               <button
                 key={form._id}
                 onClick={() => onEditForm(form._id)}
-                className="w-full text-left p-2 rounded-md hover:bg-gray-50 transition-colors group"
+                className="w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors group"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">
@@ -146,7 +125,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                       {form.title}
                     </p>
                     <div className="flex items-center space-x-2 mt-1">
-                      <span className={`px-1.5 py-0.5 text-xs font-medium rounded-full ${getStatusColor(form.status)}`}>
+                      <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${getStatusColor(form.status)}`}>
                         {form.status}
                       </span>
                       <span className="text-xs text-gray-500">
@@ -160,8 +139,8 @@ const Sidebar: React.FC<SidebarProps> = ({
             ))}
           </div>
         ) : (
-          <div className="text-center py-4">
-            <FileText className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+          <div className="text-center py-8">
+            <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
             <p className="text-sm text-gray-500">
               {searchTerm ? 'No forms found' : 'No recent forms'}
             </p>
@@ -171,25 +150,25 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       {/* User Profile */}
       <div className="p-4 border-t border-gray-200">
-        <div className="flex items-center space-x-3 mb-3">
-          <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-            <User className="w-4 h-4 text-gray-600" />
+        <div className="flex items-center space-x-3 mb-4">
+          <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium">
+            R
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900">Anonymous User</p>
-            <p className="text-xs text-gray-500">Free Plan</p>
+            <p className="text-sm font-medium text-gray-900">rohit</p>
+            <p className="text-xs text-gray-500">rohit@example.com</p>
           </div>
         </div>
         
         <div className="space-y-1">
-          <button className="w-full flex items-center space-x-3 px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+          <button className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors">
             <Settings className="w-4 h-4" />
             <span>Settings</span>
           </button>
           
-          <button className="w-full flex items-center space-x-3 px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+          <button className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors">
             <LogOut className="w-4 h-4" />
-            <span>Log Out</span>
+            <span>Log out</span>
           </button>
         </div>
       </div>
