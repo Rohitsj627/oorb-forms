@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Toaster } from 'react-hot-toast';
-import Sidebar from './Sidebar';
 import FormDashboard from './FormDashboard';
 import FormBuilder from './FormBuilder';
 import ResponseViewer from './ResponseViewer';
@@ -93,19 +92,8 @@ const OorbFormsApp: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <Sidebar 
-        onCreateForm={handleCreateForm}
-        onEditForm={handleEditForm}
-        currentView={currentView}
-        onNavigate={setCurrentView}
-      />
-      
-      {/* Main Content */}
-      <div className="flex-1 overflow-auto">
-        {renderCurrentView()}
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      {renderCurrentView()}
 
       {/* Form Creation Modal */}
       <FormCreationModal

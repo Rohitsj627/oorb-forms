@@ -17,7 +17,10 @@ import {
   Send,
   Folder,
   FolderPlus,
-  Settings
+  Settings,
+  Menu,
+  Bot,
+  Image as ImageIcon
 } from 'lucide-react';
 import { formAPI, exportAPI, folderAPI } from '../../services/api';
 import FolderModal from './FolderModal';
@@ -207,106 +210,157 @@ const FormDashboard: React.FC<FormDashboardProps> = ({
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-              <p className="text-gray-600 mt-1">Manage your forms and folders</p>
+            <div className="flex items-center space-x-4">
+              <button className="p-2 hover:bg-gray-100 rounded-md lg:hidden">
+                <Menu className="w-5 h-5" />
+              </button>
+              <div>
+                <h1 className="text-2xl font-normal text-gray-900">Create Form</h1>
+              </div>
             </div>
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={() => {
-                  setSelectedFolder(null);
-                  setShowFolderModal(true);
-                }}
-                className="inline-flex items-center px-4 py-2 bg-gray-600 text-white font-medium rounded-md hover:bg-gray-700 transition-colors"
-              >
-                <FolderPlus className="w-4 h-4 mr-2" />
-                New Folder
-              </button>
-              <button
-                onClick={onCreateForm}
-                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Create Form
-              </button>
+            <div className="flex items-center space-x-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
+                />
+              </div>
+              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium">
+                R
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <FileText className="w-6 h-6 text-blue-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Forms</p>
-                <p className="text-2xl font-bold text-gray-900">{forms.length}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <BarChart3 className="w-6 h-6 text-green-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Responses</p>
-                <p className="text-2xl font-bold text-gray-900">{totalResponses}</p>
+        {/* Create Form Options */}
+        <div className="mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl">
+            {/* Blank Form */}
+            <div 
+              onClick={onCreateForm}
+              className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer group"
+            >
+              <div className="flex items-start space-x-4">
+                <div className="w-16 h-20 bg-gray-100 rounded border-2 border-gray-200 flex items-center justify-center group-hover:border-blue-500 transition-colors">
+                  <FileText className="w-8 h-8 text-gray-400 group-hover:text-blue-500" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-1">Blank Form</h3>
+                  <p className="text-sm text-gray-600">
+                    Start with a blank form and add your own questions
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Eye className="w-6 h-6 text-purple-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Views</p>
-                <p className="text-2xl font-bold text-gray-900">{totalViews}</p>
+            {/* Create by AI */}
+            <div className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer group">
+              <div className="flex items-start space-x-4">
+                <div className="w-16 h-20 bg-purple-50 rounded border-2 border-purple-200 flex items-center justify-center group-hover:border-purple-500 transition-colors">
+                  <Bot className="w-8 h-8 text-purple-400 group-hover:text-purple-500" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-1">Create by AI</h3>
+                  <p className="text-sm text-gray-600">
+                    Let AI help you create a form based on your description
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center">
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                <Folder className="w-6 h-6 text-orange-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Folders</p>
-                <p className="text-2xl font-bold text-gray-900">{folders.length}</p>
+            {/* Use Template */}
+            <div className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer group">
+              <div className="flex items-start space-x-4">
+                <div className="w-16 h-20 bg-green-50 rounded border-2 border-green-200 flex items-center justify-center group-hover:border-green-500 transition-colors">
+                  <ImageIcon className="w-8 h-8 text-green-400 group-hover:text-green-500" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-1">Use Template</h3>
+                  <p className="text-sm text-gray-600">
+                    Choose from pre-built templates for common use cases
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search forms and folders..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <FileText className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Total Forms</p>
+                <p className="text-2xl font-semibold text-gray-900">{forms.length}</p>
               </div>
             </div>
+          </div>
+
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                <BarChart3 className="w-5 h-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Total Responses</p>
+                <p className="text-2xl font-semibold text-gray-900">{totalResponses}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                <Eye className="w-5 h-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Total Views</p>
+                <p className="text-2xl font-semibold text-gray-900">{totalViews}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                <Send className="w-5 h-5 text-orange-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Published Forms</p>
+                <p className="text-2xl font-semibold text-gray-900">{activeForms}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Your Forms Section */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-medium text-gray-900">Your Forms</h2>
             <div className="flex items-center space-x-2">
-              <Filter className="w-4 h-4 text-gray-400" />
+              <button
+                onClick={() => {
+                  setSelectedFolder(null);
+                  setShowFolderModal(true);
+                }}
+                className="inline-flex items-center px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+              >
+                <FolderPlus className="w-4 h-4 mr-2" />
+                New Folder
+              </button>
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value as any)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All Status</option>
                 <option value="published">Published</option>
@@ -315,272 +369,120 @@ const FormDashboard: React.FC<FormDashboardProps> = ({
               </select>
             </div>
           </div>
-        </div>
 
-        {/* Content */}
-        <div className="space-y-6">
-          {/* Folders */}
-          {filteredFolders.length > 0 && (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h2 className="text-lg font-medium text-gray-900">Folders</h2>
-              </div>
-              
-              <div className="divide-y divide-gray-200">
-                {filteredFolders.map((folder) => {
-                  const folderForms = forms.filter(form => form.folderId === folder._id);
-                  const isExpanded = expandedFolders.has(folder._id);
-                  
-                  return (
-                    <div key={folder._id}>
-                      <div className="p-6 hover:bg-gray-50 transition-colors">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4 flex-1">
-                            <button
-                              onClick={() => toggleFolder(folder._id)}
-                              className="flex items-center space-x-3"
-                            >
-                              <div 
-                                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                                style={{ backgroundColor: folder.color + '20' }}
-                              >
-                                <Folder 
-                                  className="w-5 h-5" 
-                                  style={{ color: folder.color }}
-                                />
-                              </div>
-                              <div>
-                                <h3 className="text-lg font-medium text-gray-900">{folder.name}</h3>
-                                <p className="text-gray-600">{folder.description}</p>
-                                <p className="text-sm text-gray-500 mt-1">
-                                  {folder.formCount} forms • Created {new Date(folder.createdAt).toLocaleDateString()}
-                                </p>
-                              </div>
-                            </button>
-                          </div>
-                          
-                          <div className="flex items-center space-x-2">
-                            <button
-                              onClick={() => {
-                                setSelectedFolder(folder);
-                                setShowFolderModal(true);
-                              }}
-                              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md"
-                              title="Edit folder"
-                            >
-                              <Settings className="w-4 h-4" />
-                            </button>
-                            
-                            <button
-                              onClick={() => deleteFolder(folder._id)}
-                              className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md"
-                              title="Delete folder"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Folder Forms */}
-                      {isExpanded && folderForms.length > 0 && (
-                        <div className="bg-gray-50 border-t border-gray-200">
-                          {folderForms.map((form) => (
-                            <div key={form._id} className="px-12 py-4 border-b border-gray-200 last:border-b-0">
-                              <div className="flex items-center justify-between">
-                                <div className="flex-1">
-                                  <div className="flex items-center space-x-3 mb-2">
-                                    <h4 className="text-base font-medium text-gray-900">{form.title}</h4>
-                                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(form.status)}`}>
-                                      {form.status}
-                                    </span>
-                                  </div>
-                                  <p className="text-gray-600 text-sm mb-2">{form.description}</p>
-                                  
-                                  <div className="flex items-center space-x-4 text-sm text-gray-500">
-                                    <div className="flex items-center space-x-1">
-                                      <BarChart3 className="w-4 h-4" />
-                                      <span>{form.responses} responses</span>
-                                    </div>
-                                    <div className="flex items-center space-x-1">
-                                      <Eye className="w-4 h-4" />
-                                      <span>{form.views} views</span>
-                                    </div>
-                                    <div className="flex items-center space-x-1">
-                                      <Calendar className="w-4 h-4" />
-                                      <span>Created {new Date(form.createdAt).toLocaleDateString()}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                                
-                                <div className="flex items-center space-x-2">
-                                  <button
-                                    onClick={() => onEditForm(form._id)}
-                                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md"
-                                    title="Edit form"
-                                  >
-                                    <Edit className="w-4 h-4" />
-                                  </button>
-                                  
-                                  <button
-                                    onClick={() => onViewResponses(form._id)}
-                                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md"
-                                    title="View responses"
-                                  >
-                                    <BarChart3 className="w-4 h-4" />
-                                  </button>
-                                  
-                                  {form.status === 'published' && form.shareUrl && (
-                                    <button
-                                      onClick={() => copyShareLink(form.shareUrl!)}
-                                      className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md"
-                                      title="Copy share link"
-                                    >
-                                      <Share2 className="w-4 h-4" />
-                                    </button>
-                                  )}
-                                  
-                                  {form.responses > 0 && (
-                                    <div className="relative group">
-                                      <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md">
-                                        <Download className="w-4 h-4" />
-                                      </button>
-                                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
-                                        <button
-                                          onClick={() => downloadExcel(form._id)}
-                                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                                        >
-                                          Download Excel
-                                        </button>
-                                        <button
-                                          onClick={() => downloadCSV(form._id)}
-                                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                                        >
-                                          Download CSV
-                                        </button>
-                                      </div>
-                                    </div>
-                                  )}
-                                  
-                                  <button
-                                    onClick={() => deleteForm(form._id)}
-                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md"
-                                    title="Delete form"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Standalone Forms */}
-          {filteredStandaloneForms.length > 0 && (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h2 className="text-lg font-medium text-gray-900">Standalone Forms</h2>
-              </div>
-              
-              <div className="divide-y divide-gray-200">
-                {filteredStandaloneForms.map((form) => (
-                  <div key={form._id} className="p-6 hover:bg-gray-50 transition-colors">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <h3 className="text-lg font-medium text-gray-900">{form.title}</h3>
-                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(form.status)}`}>
-                            {form.status}
-                          </span>
-                        </div>
-                        <p className="text-gray-600 mb-3">{form.description}</p>
-                        
-                        <div className="flex items-center space-x-6 text-sm text-gray-500">
-                          <div className="flex items-center space-x-1">
-                            <BarChart3 className="w-4 h-4" />
-                            <span>{form.responses} responses</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <Eye className="w-4 h-4" />
-                            <span>{form.views} views</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <Calendar className="w-4 h-4" />
-                            <span>Created {new Date(form.createdAt).toLocaleDateString()}</span>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => onEditForm(form._id)}
-                          className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md"
-                          title="Edit form"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        
-                        <button
-                          onClick={() => onViewResponses(form._id)}
-                          className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md"
-                          title="View responses"
-                        >
-                          <BarChart3 className="w-4 h-4" />
-                        </button>
-                        
-                        {form.status === 'published' && form.shareUrl && (
-                          <button
-                            onClick={() => copyShareLink(form.shareUrl!)}
-                            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md"
-                            title="Copy share link"
-                          >
-                            <Share2 className="w-4 h-4" />
-                          </button>
-                        )}
-                        
-                        {form.responses > 0 && (
-                          <div className="relative group">
-                            <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md">
-                              <Download className="w-4 h-4" />
-                            </button>
-                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
-                              <button
-                                onClick={() => downloadExcel(form._id)}
-                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                              >
-                                Download Excel
-                              </button>
-                              <button
-                                onClick={() => downloadCSV(form._id)}
-                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                              >
-                                Download CSV
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                        
-                        <button
-                          onClick={() => deleteForm(form._id)}
-                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md"
-                          title="Delete form"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
+          {/* Forms Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {/* Folders */}
+            {filteredFolders.map((folder) => (
+              <div
+                key={folder._id}
+                className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow cursor-pointer group"
+                onClick={() => toggleFolder(folder._id)}
+              >
+                <div className="flex flex-col items-center text-center">
+                  <div 
+                    className="w-16 h-16 rounded-lg flex items-center justify-center mb-3"
+                    style={{ backgroundColor: folder.color + '20' }}
+                  >
+                    <Folder 
+                      className="w-8 h-8" 
+                      style={{ color: folder.color }}
+                    />
                   </div>
-                ))}
+                  <h3 className="font-medium text-gray-900 text-sm mb-1 truncate w-full">
+                    {folder.name}
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    {folder.formCount} forms
+                  </p>
+                </div>
+                <div className="flex items-center justify-end mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedFolder(folder);
+                      setShowFolderModal(true);
+                    }}
+                    className="p-1 text-gray-400 hover:text-gray-600 rounded"
+                  >
+                    <Settings className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteFolder(folder._id);
+                    }}
+                    className="p-1 text-gray-400 hover:text-red-600 rounded"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
+            ))}
+
+            {/* Standalone Forms */}
+            {filteredStandaloneForms.map((form) => (
+              <div
+                key={form._id}
+                className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow cursor-pointer group"
+                onClick={() => onEditForm(form._id)}
+              >
+                <div className="flex flex-col items-center text-center">
+                  <div className="w-16 h-16 bg-blue-50 rounded-lg flex items-center justify-center mb-3">
+                    <FileText className="w-8 h-8 text-blue-600" />
+                  </div>
+                  <h3 className="font-medium text-gray-900 text-sm mb-1 truncate w-full">
+                    {form.title}
+                  </h3>
+                  <div className="flex items-center space-x-2 text-xs text-gray-500 mb-2">
+                    <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(form.status)}`}>
+                      {form.status}
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-3 text-xs text-gray-500">
+                    <span>{form.responses} responses</span>
+                    <span>{form.views} views</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center space-x-1">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onViewResponses(form._id);
+                      }}
+                      className="p-1 text-gray-400 hover:text-gray-600 rounded"
+                      title="View responses"
+                    >
+                      <BarChart3 className="w-4 h-4" />
+                    </button>
+                    {form.status === 'published' && form.shareUrl && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copyShareLink(form.shareUrl!);
+                        }}
+                        className="p-1 text-gray-400 hover:text-gray-600 rounded"
+                        title="Copy share link"
+                      >
+                        <Share2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteForm(form._id);
+                    }}
+                    className="p-1 text-gray-400 hover:text-red-600 rounded"
+                    title="Delete form"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
 
           {/* Empty State */}
           {filteredFolders.length === 0 && filteredStandaloneForms.length === 0 && (
@@ -590,29 +492,17 @@ const FormDashboard: React.FC<FormDashboardProps> = ({
               <p className="text-gray-600 mb-4">
                 {searchTerm || filterStatus !== 'all' 
                   ? 'Try adjusting your search or filter criteria'
-                  : 'Get started by creating your first form or folder'
+                  : 'Get started by creating your first form'
                 }
               </p>
               {!searchTerm && filterStatus === 'all' && (
-                <div className="flex items-center justify-center space-x-3">
-                  <button
-                    onClick={() => {
-                      setSelectedFolder(null);
-                      setShowFolderModal(true);
-                    }}
-                    className="inline-flex items-center px-4 py-2 bg-gray-600 text-white font-medium rounded-md hover:bg-gray-700 transition-colors"
-                  >
-                    <FolderPlus className="w-4 h-4 mr-2" />
-                    Create Folder
-                  </button>
-                  <button
-                    onClick={onCreateForm}
-                    className="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create Form
-                  </button>
-                </div>
+                <button
+                  onClick={onCreateForm}
+                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Your First Form
+                </button>
               )}
             </div>
           )}

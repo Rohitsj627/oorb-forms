@@ -4,10 +4,23 @@ import Response from '../models/Response.js';
 
 const router = express.Router();
 
-// Get all forms
+// Get all forms with optional query parameters
 router.get('/', async (req, res) => {
   try {
-    const forms = await Form.find().sort({ updatedAt: -1 });
+    const { limit, sort } = req.query;
+    let query = Form.find();
+    
+    if (sort) {
+      query = query.sort({ [sort]: -1 });
+    } else {
+      query = query.sort({ updatedAt: -1 });
+    }
+    
+    if (limit) {
+      query = query.limit(parseInt(limit));
+    }
+    
+    const forms = await query;
     res.json(forms);
   } catch (error) {
     res.status(500).json({ error: error.message });
