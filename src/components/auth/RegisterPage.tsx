@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FileText, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -11,8 +11,15 @@ const RegisterPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
+  const { register, user } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/oorb-forms', { replace: true });
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,12 +31,17 @@ const RegisterPage: React.FC = () => {
     
     setLoading(true);
     
-    const success = await register(name, email, password);
-    if (success) {
-      navigate('/oorb-forms');
+    try {
+      const success = await register(name, email, password);
+      if (success) {
+        // Navigation will be handled by the useEffect above when user state changes
+        console.log('Registration successful, redirecting...');
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   return (

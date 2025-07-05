@@ -23,7 +23,31 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   }
   
   if (!user) {
+    console.log('User not authenticated, redirecting to login');
     return <Navigate to="/login" replace />;
+  }
+  
+  console.log('User authenticated, rendering protected content');
+  return <>{children}</>;
+};
+
+const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  if (user) {
+    console.log('User already authenticated, redirecting to dashboard');
+    return <Navigate to="/oorb-forms" replace />;
   }
   
   return <>{children}</>;
@@ -34,8 +58,16 @@ const AppRoutes: React.FC = () => {
     <div className="min-h-screen bg-white">
       <Routes>
         {/* Public routes */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={
+          <PublicRoute>
+            <LoginPage />
+          </PublicRoute>
+        } />
+        <Route path="/register" element={
+          <PublicRoute>
+            <RegisterPage />
+          </PublicRoute>
+        } />
         <Route path="/form/:shareUrl" element={<FormRenderer />} />
         
         {/* Protected routes */}

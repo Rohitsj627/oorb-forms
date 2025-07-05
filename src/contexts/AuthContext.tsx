@@ -55,8 +55,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (token) {
         const response = await authAPI.getCurrentUser();
         setUser(response.data);
+        console.log('User authenticated:', response.data);
       }
     } catch (error) {
+      console.error('Auth check failed:', error);
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
     } finally {
@@ -66,16 +68,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
+      console.log('Attempting login for:', email);
       const response = await authAPI.login({ email, password });
       const { token, user: userData } = response.data;
+      
+      console.log('Login response:', { token: token ? 'received' : 'missing', user: userData });
       
       localStorage.setItem('authToken', token);
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
       
       toast.success('Login successful!');
+      console.log('User state updated, should redirect now');
       return true;
     } catch (error: any) {
+      console.error('Login error:', error);
       toast.error(error.response?.data?.error || 'Login failed');
       return false;
     }
@@ -83,16 +90,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (name: string, email: string, password: string): Promise<boolean> => {
     try {
+      console.log('Attempting registration for:', email);
       const response = await authAPI.register({ name, email, password });
       const { token, user: userData } = response.data;
+      
+      console.log('Registration response:', { token: token ? 'received' : 'missing', user: userData });
       
       localStorage.setItem('authToken', token);
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
       
       toast.success('Registration successful!');
+      console.log('User state updated, should redirect now');
       return true;
     } catch (error: any) {
+      console.error('Registration error:', error);
       toast.error(error.response?.data?.error || 'Registration failed');
       return false;
     }
