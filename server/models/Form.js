@@ -42,7 +42,11 @@ const formSchema = new mongoose.Schema({
     default: 'draft' 
   },
   shareUrl: { type: String, unique: true },
-  createdBy: { type: String, default: 'anonymous' },
+  createdBy: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User',
+    required: true 
+  },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   

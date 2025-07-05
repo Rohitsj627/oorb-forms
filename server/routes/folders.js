@@ -4,14 +4,40 @@ import Form from '../models/Form.js';
 
 const router = express.Router();
 
-// Get all folders
-router.get('/', async (req, res) => {
+// Middleware to authenticate JWT token
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ error: 'Access token required' });
+  }
+
+  const jwt = await import('jsonwebtoken');
+  const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+
+  jwt.default.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: 'Invalid or expired token' });
+    }
+    req.user = user;
+    next();
+  });
+}
+
+// Get all folders for authenticated user
+router.get('/', authenticateToken, async (req, res) => {
   try {
-    const folders = await Folder.find().sort({ updatedAt: -1 });
+    const folders = await Folder.find({ createdBy: req.user.userId })
+      .sort({ updatedAt: -1 })
+      .populate('createdBy', 'name email');
     
     // Update form count for each folder
     for (let folder of folders) {
-      const formCount = await Form.countDocuments({ folderId: folder._id });
+      const formCount = await Form.countDocuments({ 
+        folderId: folder._id,
+        createdBy: req.user.userId 
+      });
       if (folder.formCount !== formCount) {
         folder.formCount = formCount;
         await folder.save();
@@ -24,15 +50,22 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get folder by ID with forms
-router.get('/:id', async (req, res) => {
+// Get folder by ID with forms (only if user owns it)
+router.get('/:id', authenticateToken, async (req, res) => {
   try {
-    const folder = await Folder.findById(req.params.id);
+    const folder = await Folder.findOne({ 
+      _id: req.params.id, 
+      createdBy: req.user.userId 
+    }).populate('createdBy', 'name email');
+    
     if (!folder) {
-      return res.status(404).json({ error: 'Folder not found' });
+      return res.status(404).json({ error: 'Folder not found or access denied' });
     }
     
-    const forms = await Form.find({ folderId: req.params.id }).sort({ updatedAt: -1 });
+    const forms = await Form.find({ 
+      folderId: req.params.id,
+      createdBy: req.user.userId 
+    }).sort({ updatedAt: -1 });
     
     res.json({
       folder,
@@ -44,26 +77,34 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create new folder
-router.post('/', async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
   try {
-    const folder = new Folder(req.body);
+    const folderData = {
+      ...req.body,
+      createdBy: req.user.userId
+    };
+    
+    const folder = new Folder(folderData);
     await folder.save();
-    res.status(201).json(folder);
+    
+    const populatedFolder = await Folder.findById(folder._id).populate('createdBy', 'name email');
+    res.status(201).json(populatedFolder);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 });
 
-// Update folder
-router.put('/:id', async (req, res) => {
+// Update folder (only if user owns it)
+router.put('/:id', authenticateToken, async (req, res) => {
   try {
-    const folder = await Folder.findByIdAndUpdate(
-      req.params.id,
+    const folder = await Folder.findOneAndUpdate(
+      { _id: req.params.id, createdBy: req.user.userId },
       { ...req.body, updatedAt: new Date() },
       { new: true, runValidators: true }
-    );
+    ).populate('createdBy', 'name email');
+    
     if (!folder) {
-      return res.status(404).json({ error: 'Folder not found' });
+      return res.status(404).json({ error: 'Folder not found or access denied' });
     }
     res.json(folder);
   } catch (error) {
@@ -71,16 +112,24 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Delete folder
-router.delete('/:id', async (req, res) => {
+// Delete folder (only if user owns it)
+router.delete('/:id', authenticateToken, async (req, res) => {
   try {
-    const folder = await Folder.findById(req.params.id);
+    const folder = await Folder.findOne({ 
+      _id: req.params.id, 
+      createdBy: req.user.userId 
+    });
+    
     if (!folder) {
-      return res.status(404).json({ error: 'Folder not found' });
+      return res.status(404).json({ error: 'Folder not found or access denied' });
     }
     
     // Check if folder has forms
-    const formCount = await Form.countDocuments({ folderId: req.params.id });
+    const formCount = await Form.countDocuments({ 
+      folderId: req.params.id,
+      createdBy: req.user.userId 
+    });
+    
     if (formCount > 0) {
       return res.status(400).json({ 
         error: 'Cannot delete folder with forms. Please move or delete all forms first.' 
@@ -94,23 +143,34 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// Move forms to folder
-router.post('/:id/move-forms', async (req, res) => {
+// Move forms to folder (only if user owns both folder and forms)
+router.post('/:id/move-forms', authenticateToken, async (req, res) => {
   try {
     const { formIds } = req.body;
     
-    const folder = await Folder.findById(req.params.id);
+    const folder = await Folder.findOne({ 
+      _id: req.params.id, 
+      createdBy: req.user.userId 
+    });
+    
     if (!folder) {
-      return res.status(404).json({ error: 'Folder not found' });
+      return res.status(404).json({ error: 'Folder not found or access denied' });
     }
     
+    // Only update forms that belong to the user
     await Form.updateMany(
-      { _id: { $in: formIds } },
+      { 
+        _id: { $in: formIds },
+        createdBy: req.user.userId 
+      },
       { folderId: req.params.id, updatedAt: new Date() }
     );
     
     // Update folder form count
-    folder.formCount = await Form.countDocuments({ folderId: req.params.id });
+    folder.formCount = await Form.countDocuments({ 
+      folderId: req.params.id,
+      createdBy: req.user.userId 
+    });
     await folder.save();
     
     res.json({ message: 'Forms moved successfully' });
