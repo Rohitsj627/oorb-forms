@@ -1,28 +1,87 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { Toaster } from 'react-hot-toast';
 
 import OorbFormsApp from './components/forms/OorbFormsApp';
 import FormRenderer from './components/forms/FormRenderer';
+import LoginPage from './components/auth/LoginPage';
+import RegisterPage from './components/auth/RegisterPage';
 
-const App = () => {
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return <>{children}</>;
+};
+
+const AppRoutes: React.FC = () => {
   return (
     <div className="min-h-screen bg-white">
       <Routes>
-        {/* Public form route (no navbar/footer) */}
+        {/* Public routes */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route path="/form/:shareUrl" element={<FormRenderer />} />
         
-        {/* Main app routes (with navbar/footer) */}
-        <Route path="/*" element={
-          <>
-            <main>
-              <Routes>
-                <Route path="/oorb-forms" element={<OorbFormsApp />} />
-              </Routes>
-            </main>
-          </>
+        {/* Protected routes */}
+        <Route path="/oorb-forms" element={
+          <ProtectedRoute>
+            <OorbFormsApp />
+          </ProtectedRoute>
         } />
+        
+        {/* Default redirect */}
+        <Route path="/" element={<Navigate to="/oorb-forms" replace />} />
       </Routes>
+      
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+          success: {
+            duration: 3000,
+            iconTheme: {
+              primary: '#4ade80',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            duration: 4000,
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
     </div>
+  );
+};
+
+const App = () => {
+  return (
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
   );
 };
 

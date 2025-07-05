@@ -6,6 +6,7 @@ import formRoutes from './routes/forms.js';
 import responseRoutes from './routes/responses.js';
 import exportRoutes from './routes/exports.js';
 import folderRoutes from './routes/folders.js';
+import authRoutes from './routes/auth.js';
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use('/api/forms', formRoutes);
 app.use('/api/responses', responseRoutes);
 app.use('/api/exports', exportRoutes);
 app.use('/api/folders', folderRoutes);
+app.use('/api/auth', authRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

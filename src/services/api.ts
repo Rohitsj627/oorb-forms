@@ -9,6 +9,48 @@ const api = axios.create({
   },
 });
 
+// Add token to requests if available
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('authToken');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Handle token expiration
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Auth API
+export const authAPI = {
+  // Login
+  login: (credentials: { email: string; password: string }) => 
+    api.post('/auth/login', credentials),
+  
+  // Register
+  register: (userData: { email: string; password: string; name: string }) => 
+    api.post('/auth/register', userData),
+  
+  // Logout
+  logout: () => api.post('/auth/logout'),
+  
+  // Get current user
+  getCurrentUser: () => api.get('/auth/me'),
+  
+  // Update profile
+  updateProfile: (profileData: any) => api.put('/auth/profile', profileData),
+};
+
 // Form API
 export const formAPI = {
   // Get all forms
@@ -59,26 +101,6 @@ export const folderAPI = {
   // Move forms to folder
   moveForms: (folderId: string, formIds: string[]) => 
     api.post(`/folders/${folderId}/move-forms`, { formIds }),
-};
-
-// Auth API (placeholder for future authentication features)
-export const authAPI = {
-  // Login
-  login: (credentials: { email: string; password: string }) => 
-    api.post('/auth/login', credentials),
-  
-  // Register
-  register: (userData: { email: string; password: string; name: string }) => 
-    api.post('/auth/register', userData),
-  
-  // Logout
-  logout: () => api.post('/auth/logout'),
-  
-  // Get current user
-  getCurrentUser: () => api.get('/auth/me'),
-  
-  // Refresh token
-  refreshToken: () => api.post('/auth/refresh'),
 };
 
 // Response API

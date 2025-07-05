@@ -13,6 +13,7 @@ import {
   Star
 } from 'lucide-react';
 import { formAPI } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
 import toast from 'react-hot-toast';
 
 interface RecentForm {
@@ -35,6 +36,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   currentView,
   onNavigate 
 }) => {
+  const { user, logout, getInitials } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [recentForms, setRecentForms] = useState<RecentForm[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,6 +56,12 @@ const Sidebar: React.FC<SidebarProps> = ({
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    // Redirect to login page or home
+    window.location.href = '/login';
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'published': return 'bg-green-100 text-green-800';
@@ -66,6 +74,17 @@ const Sidebar: React.FC<SidebarProps> = ({
   const filteredForms = recentForms.filter(form =>
     form.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (!user) {
+    return (
+      <div className="w-64 bg-white border-r border-gray-200 h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+          <p className="text-sm text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-64 bg-white border-r border-gray-200 h-screen flex flex-col">
@@ -151,12 +170,20 @@ const Sidebar: React.FC<SidebarProps> = ({
       {/* User Profile */}
       <div className="p-4 border-t border-gray-200">
         <div className="flex items-center space-x-3 mb-4">
-          <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium">
-            R
-          </div>
+          {user.avatar ? (
+            <img 
+              src={user.avatar} 
+              alt={user.name}
+              className="w-10 h-10 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium">
+              {getInitials()}
+            </div>
+          )}
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900">rohit</p>
-            <p className="text-xs text-gray-500">rohit@example.com</p>
+            <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
+            <p className="text-xs text-gray-500 truncate">{user.email}</p>
           </div>
         </div>
         
@@ -166,7 +193,10 @@ const Sidebar: React.FC<SidebarProps> = ({
             <span>Settings</span>
           </button>
           
-          <button className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+          <button 
+            onClick={handleLogout}
+            className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+          >
             <LogOut className="w-4 h-4" />
             <span>Log out</span>
           </button>
