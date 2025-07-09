@@ -171,11 +171,6 @@ const FormDashboard: React.FC<FormDashboardProps> = ({
   };
 
   const handleItemClick = (itemId: string, itemType: 'form' | 'folder') => {
-    if (activeDropdown) {
-      setActiveDropdown(null);
-      return;
-    }
-    
     if (itemType === 'folder') {
       const folder = folders.find(f => f._id === itemId);
       if (folder) {
@@ -187,6 +182,11 @@ const FormDashboard: React.FC<FormDashboardProps> = ({
   };
 
   const handleItemDoubleClick = (itemId: string, itemType: 'form' | 'folder') => {
+    // Close any open dropdown first
+    if (activeDropdown) {
+      setActiveDropdown(null);
+      return;
+    }
     if (itemType === 'folder') {
       const folder = folders.find(f => f._id === itemId);
       if (folder) {
@@ -318,7 +318,10 @@ const FormDashboard: React.FC<FormDashboardProps> = ({
       <div
         className={`group relative bg-white border border-transparent hover:border-blue-300 hover:bg-blue-50 rounded-lg p-3 cursor-pointer transition-all duration-200 ${
           isDragging ? 'opacity-50 scale-95' : ''
-        } ${selectedItems.has(item._id) ? 'border-blue-500 bg-blue-50' : ''}`}
+        } ${selectedItems.has(item._id) ? 'border-blue-500 bg-blue-50' : ''} ${
+          activeDropdown === item._id ? 'border-blue-300 bg-blue-50' : ''
+        }`}
+        onMouseLeave={() => activeDropdown === item._id && setActiveDropdown(null)}
         onClick={() => handleItemClick(item._id, type)}
         onDoubleClick={() => handleItemDoubleClick(item._id, type)}
       >
@@ -371,13 +374,30 @@ const FormDashboard: React.FC<FormDashboardProps> = ({
           <div className="relative">
             <button
               onClick={(e) => handleDropdownClick(e, item._id)}
-              className="p-1 bg-white rounded shadow-sm border border-gray-200 hover:bg-gray-50"
+              className={`p-1 bg-white rounded shadow-sm border border-gray-200 hover:bg-gray-50 ${
+                activeDropdown === item._id ? 'bg-gray-50' : ''
+              }`}
             >
               <MoreVertical className="w-3 h-3 text-gray-600" />
             </button>
 
             {activeDropdown === item._id && (
-              <div className="absolute right-0 top-8 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+              <div 
+                className="absolute right-0 top-8 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[60]"
+                onMouseLeave={(e) => {
+                  // Only close if mouse leaves the dropdown area
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const { clientX, clientY } = e;
+                  if (
+                    clientX < rect.left || 
+                    clientX > rect.right || 
+                    clientY < rect.top || 
+                    clientY > rect.bottom
+                  ) {
+                    setTimeout(() => setActiveDropdown(null), 100);
+                  }
+                }}
+              >
                 {isFolder ? (
                   // Folder options
                   <>
@@ -873,10 +893,10 @@ const FormDashboard: React.FC<FormDashboardProps> = ({
           />
         )}
 
-        {/* Click outside to close item dropdown */}
+        {/* Click outside to close dropdown */}
         {activeDropdown && (
           <div 
-            className="fixed inset-0 z-40" 
+            className="fixed inset-0 z-50" 
             onClick={closeDropdown}
           />
         )}
