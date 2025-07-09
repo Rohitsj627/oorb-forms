@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Filter, MoreVertical, Eye, Edit, Trash2, Copy, Share2, BarChart3, Users, Calendar, FileText, Download, Send, Folder, FolderOpen, FolderPlus, Settings, Menu, Bot, Image as ImageIcon, Star, User, LogOut, TrendingUp, Activity, ChevronDown, ChevronRight, X, ArrowLeft, Grid as Grid3X3, List, SortAsc } from 'lucide-react';
+import { Plus, Search, Filter, MoreVertical, Eye, Edit, Trash2, Copy, Share2, BarChart3, Users, Calendar, FileText, Download, Send, Folder, FolderOpen, FolderPlus, Settings, Menu, Bot, Image as ImageIcon, Star, User, LogOut, TrendingUp, Activity, ChevronDown, ChevronRight, X, ArrowLeft, Grid as Grid3X3, List, SortAsc, ExternalLink } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { formAPI, exportAPI, folderAPI } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
@@ -52,6 +52,7 @@ const FormDashboard: React.FC<FormDashboardProps> = ({
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
@@ -160,7 +161,21 @@ const FormDashboard: React.FC<FormDashboardProps> = ({
     toast.success('Share link copied to clipboard!');
   };
 
+  const handleDropdownClick = (e: React.MouseEvent, itemId: string) => {
+    e.stopPropagation();
+    setActiveDropdown(activeDropdown === itemId ? null : itemId);
+  };
+
+  const closeDropdown = () => {
+    setActiveDropdown(null);
+  };
+
   const handleItemClick = (itemId: string, itemType: 'form' | 'folder') => {
+    if (activeDropdown) {
+      setActiveDropdown(null);
+      return;
+    }
+    
     if (itemType === 'folder') {
       const folder = folders.find(f => f._id === itemId);
       if (folder) {
@@ -353,15 +368,116 @@ const FormDashboard: React.FC<FormDashboardProps> = ({
 
         {/* Context Menu */}
         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              // Handle context menu
-            }}
-            className="p-1 bg-white rounded shadow-sm border border-gray-200 hover:bg-gray-50"
-          >
-            <MoreVertical className="w-3 h-3 text-gray-600" />
-          </button>
+          <div className="relative">
+            <button
+              onClick={(e) => handleDropdownClick(e, item._id)}
+              className="p-1 bg-white rounded shadow-sm border border-gray-200 hover:bg-gray-50"
+            >
+              <MoreVertical className="w-3 h-3 text-gray-600" />
+            </button>
+
+            {activeDropdown === item._id && (
+              <div className="absolute right-0 top-8 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                {isFolder ? (
+                  // Folder options
+                  <>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedFolder(item as FolderItem);
+                        setShowFolderModal(true);
+                        closeDropdown();
+                      }}
+                      className="w-full flex items-center space-x-3 px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
+                    >
+                      <Edit className="w-4 h-4" />
+                      <span>Edit Folder</span>
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteFolder(item._id);
+                        closeDropdown();
+                      }}
+                      className="w-full flex items-center space-x-3 px-4 py-2 text-left text-red-600 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>Delete Folder</span>
+                    </button>
+                  </>
+                ) : (
+                  // Form options
+                  <>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEditForm(item._id);
+                        closeDropdown();
+                      }}
+                      className="w-full flex items-center space-x-3 px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
+                    >
+                      <Edit className="w-4 h-4" />
+                      <span>Edit Form</span>
+                    </button>
+                    
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onViewResponses(item._id);
+                        closeDropdown();
+                      }}
+                      className="w-full flex items-center space-x-3 px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
+                    >
+                      <BarChart3 className="w-4 h-4" />
+                      <span>View Responses</span>
+                    </button>
+
+                    {(item as FormItem).status === 'published' && (item as FormItem).shareUrl && (
+                      <>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            copyShareLink((item as FormItem).shareUrl!);
+                            closeDropdown();
+                          }}
+                          className="w-full flex items-center space-x-3 px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
+                        >
+                          <Copy className="w-4 h-4" />
+                          <span>Copy Share Link</span>
+                        </button>
+                        
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(`/form/${(item as FormItem).shareUrl}`, '_blank');
+                            closeDropdown();
+                          }}
+                          className="w-full flex items-center space-x-3 px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          <span>Open Form</span>
+                        </button>
+                      </>
+                    )}
+
+                    <div className="border-t border-gray-100 my-1"></div>
+                    
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteForm(item._id);
+                        closeDropdown();
+                      }}
+                      className="w-full flex items-center space-x-3 px-4 py-2 text-left text-red-600 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>Delete Form</span>
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -754,6 +870,14 @@ const FormDashboard: React.FC<FormDashboardProps> = ({
           <div 
             className="fixed inset-0 z-40" 
             onClick={() => setShowProfileDropdown(false)}
+          />
+        )}
+
+        {/* Click outside to close item dropdown */}
+        {activeDropdown && (
+          <div 
+            className="fixed inset-0 z-40" 
+            onClick={closeDropdown}
           />
         )}
 
