@@ -163,7 +163,17 @@ const FormDashboard: React.FC<FormDashboardProps> = ({
 
   const handleDropdownClick = (e: React.MouseEvent, itemId: string) => {
     e.stopPropagation();
-    setActiveDropdown(activeDropdown === itemId ? null : itemId);
+    e.preventDefault();
+    
+    if (activeDropdown === itemId) {
+      setActiveDropdown(null);
+    } else {
+      // Use setTimeout to defer the dropdown opening to the next event cycle
+      // This prevents the click event from immediately triggering the outside click handler
+      setTimeout(() => {
+        setActiveDropdown(itemId);
+      }, 0);
+    }
   };
 
   const closeDropdown = () => {
@@ -321,7 +331,6 @@ const FormDashboard: React.FC<FormDashboardProps> = ({
         } ${selectedItems.has(item._id) ? 'border-blue-500 bg-blue-50' : ''} ${
           activeDropdown === item._id ? 'border-blue-300 bg-blue-50' : ''
         }`}
-        onMouseLeave={() => activeDropdown === item._id && setActiveDropdown(null)}
         onClick={() => handleItemClick(item._id, type)}
         onDoubleClick={() => handleItemDoubleClick(item._id, type)}
       >
@@ -384,19 +393,7 @@ const FormDashboard: React.FC<FormDashboardProps> = ({
             {activeDropdown === item._id && (
               <div 
                 className="absolute right-0 top-8 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[60]"
-                onMouseLeave={(e) => {
-                  // Only close if mouse leaves the dropdown area
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  const { clientX, clientY } = e;
-                  if (
-                    clientX < rect.left || 
-                    clientX > rect.right || 
-                    clientY < rect.top || 
-                    clientY > rect.bottom
-                  ) {
-                    setTimeout(() => setActiveDropdown(null), 100);
-                  }
-                }}
+                onClick={(e) => e.stopPropagation()}
               >
                 {isFolder ? (
                   // Folder options
