@@ -123,11 +123,17 @@ const EnhancedOorbFormsApp: React.FC = () => {
             onBack={handleBackToDashboard}
           />
         ) : null;
-          <FormDashboard 
-            onCreateForm={handleCreateForm}
-            onEditForm={handleEditForm}
-            onViewResponses={handleViewResponses}
-          />
+      
+      default:
+        return (
+          <div className="flex min-h-screen bg-gray-50">
+            {!isMobile && (
+              <div className="fixed left-0 top-0 h-full z-10">
+                <Sidebar
+                  onCreateForm={handleCreateForm}
+                  onEditForm={handleEditForm}
+                  currentView={currentView}
+                  onNavigate={setCurrentView}
                   onToggle={handleSidebarToggle}
                 />
               </div>
